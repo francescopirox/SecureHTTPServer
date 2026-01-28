@@ -4,7 +4,6 @@ import configurationmanager.types.IP;
 import configurationmanager.types.Name;
 import configurationmanager.types.Port;
 
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
@@ -20,16 +19,16 @@ public class ConfigurationManager implements Configuration{
 
     @Override
     public IP getHost() {
-        return null;
+        return new IP(configurationParser.castValue("host"));
     }
 
     @Override
     public Port getPort() {
-        return null;
+        return new Port(configurationParser.getInt("port"));
     }
 
     @Override
     public Name getName() {
-        return null;
+        return new Name(configurationParser.castValue("name"));
     }
 }

@@ -1,6 +1,5 @@
 package configurationmanager;
 
-import java.io.CharConversionException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,7 +12,8 @@ import java.util.regex.Pattern;
 
 public class ConfigurationParser {
     private static final Pattern LINE_PATTERN = Pattern.compile(
-            "^\\s*([A-Z0-9_]+)\\s*=\\s*(\"([^\"]*)\"|(\\d+))\\s*$"); //add machers for Dobule and Bool
+            "^\\s*([A-Z0-9_]+)\\s*=\\s*(?:\"([^\"]*)\"|([+-]?\\d+)|([+-]?\\d+\\.\\d+)|(?i)(true|false))\\s*$"
+    );
     private final Path path;
     private final Map<String, Object> parsed;
 
@@ -29,9 +29,16 @@ public class ConfigurationParser {
         }
     }
 
-    public String getValue(String key){
+    public String castValue(String key){
         if(parsed.containsKey(key))
             return (String)parsed.get(key);
+        throw new NoSuchElementException("No element correspond to the provided key");
+    }
+
+    public String getValue(String key) {
+        if (parsed.containsKey(key)) {
+            return parsed.get(key).toString();
+        }
         throw new NoSuchElementException("No element correspond to the provided key");
     }
 
@@ -42,6 +49,28 @@ public class ConfigurationParser {
                 return (int) obj;
 
             throw new ClassCastException("Integer Conversion Failed");
+        }
+        throw new NoSuchElementException("No element correspond to the provided key");
+    }
+
+    public double getDouble(String key){
+        if(parsed.containsKey(key)) {
+            Object obj = parsed.get(key);
+            if(obj instanceof Double)
+                return (Double)obj;
+
+            throw new ClassCastException("Double Conversion Failed");
+        }
+        throw new NoSuchElementException("No element correspond to the provided key");
+    }
+
+    public boolean getBoolean(String key){
+        if(parsed.containsKey(key)) {
+            Object obj = parsed.get(key);
+            if(obj instanceof Boolean)
+                return (boolean) obj;
+
+            throw new ClassCastException("Boolean Conversion Failed");
         }
         throw new NoSuchElementException("No element correspond to the provided key");
     }
@@ -65,24 +94,37 @@ public class ConfigurationParser {
             }
 
             String key = matcher.group(1);
-            String stringValue = matcher.group(3);
-            String numberValue = matcher.group(4);
+            //parser
+            String stringValue = matcher.group(2);
+            String intValue    = matcher.group(3);
+            String doubleValue = matcher.group(4);
+            String boolValue   = matcher.group(5);
 
-            Object value;
-            if (stringValue != null) {
-                value = stringValue;
-            } else if (numberValue != null) {
-                value = Integer.parseInt(numberValue);
-            }
-            else {
-                throw new CharConversionException("Something went wrong");
-            }
-
-
+            Object value = castValue(stringValue, intValue,doubleValue,boolValue);
             config.put(key, value);
         }
 
         return config;
+    }
+
+    private static Object castValue(String stringValue, String intValue, String doubleValue, String boolValue) {
+        Object value;
+        if (stringValue != null) {
+            value = stringValue;
+        }
+        else if (intValue != null) {
+            value = Integer.parseInt(intValue);
+        }
+        else if (doubleValue != null) {
+            value = Double.parseDouble(doubleValue);
+        }
+        else if (boolValue != null) {
+            value = Boolean.parseBoolean(boolValue);
+        }
+        else {
+            throw new IllegalArgumentException("Unknown value type");
+        }
+        return value;
     }
 
 }
