@@ -39,7 +39,11 @@ public class ConfigurationParser {
         if (parsed.containsKey(key)) {
             return parsed.get(key).toString();
         }
-        throw new NoSuchElementException("No element correspond to the provided key");
+        return null;
+    }
+
+    public boolean checkValue(String key){
+        return parsed.containsKey(key);
     }
 
     public int getInt(String key){
@@ -51,6 +55,17 @@ public class ConfigurationParser {
             throw new ClassCastException("Integer Conversion Failed");
         }
         throw new NoSuchElementException("No element correspond to the provided key");
+    }
+
+    public Integer getInteger(String key){
+        if(parsed.containsKey(key)) {
+            Object obj = parsed.get(key);
+            if(obj instanceof Integer)
+                return (Integer) obj;
+
+            throw new ClassCastException("Integer Conversion Failed");
+        }
+        return null;
     }
 
     public double getDouble(String key){

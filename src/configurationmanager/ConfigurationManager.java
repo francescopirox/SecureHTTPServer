@@ -1,9 +1,11 @@
 package configurationmanager;
 
-import configurationmanager.types.IP;
+import configurationmanager.types.DEFAULTS;
 import configurationmanager.types.Name;
 import configurationmanager.types.Port;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
@@ -18,17 +20,30 @@ public class ConfigurationManager implements Configuration{
     }
 
     @Override
-    public IP getHost() {
-        return new IP(configurationParser.castValue("host"));
+    public InetAddress getHost() throws UnknownHostException {
+        try {
+            return InetAddress.getByName(configurationParser.castValue("host"));
+        }
+        catch (UnknownHostException UHE){
+            return InetAddress.getLocalHost();
+        }
     }
 
     @Override
     public Port getPort() {
-        return new Port(configurationParser.getInt("port"));
+        Integer x=configurationParser.getInteger("port");
+        if(x == null){
+            return new Port(DEFAULTS.DefaultPort);
+        }
+        return new Port(x);
     }
 
     @Override
     public Name getName() {
-        return new Name(configurationParser.castValue("name"));
+        String name=configurationParser.castValue("name");
+        if(name == null)
+            return new Name(DEFAULTS.defaultName);
+        return new Name();
+
     }
 }
