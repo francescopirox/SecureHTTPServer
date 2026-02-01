@@ -4,16 +4,17 @@ import configurationmanager.Configuration;
 import configurationmanager.ConfigurationManager;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.net.ServerSocket;
+
 import java.net.UnknownHostException;
 
 public class ConnectionAccepter {
     private Configuration configuration= new ConfigurationManager();
-    private Socket socket;
+    private ServerSocket socket;
 
     public ConnectionAccepter(){
         try {
-            socket= new Socket(configuration.getHost(),configuration.getPort().value());
+            socket= new ServerSocket(configuration.getPort().value());
         } catch (UnknownHostException e) {
 
         }
@@ -21,5 +22,16 @@ public class ConnectionAccepter {
 
         }
 
+    }
+
+    public void accept() throws IOException {
+        while(true) {
+            new HttpHandler(socket.accept());
+        }
+    }
+
+
+    public void close() throws IOException{
+        socket.close();
     }
 }

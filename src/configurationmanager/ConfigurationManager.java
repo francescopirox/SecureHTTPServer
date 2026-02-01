@@ -43,7 +43,7 @@ public class ConfigurationManager implements Configuration{
         String name=configurationParser.castValue("name");
         if(name == null)
             return new Name(DEFAULTS.defaultName);
-        return new Name();
+        return new Name(name);
 
     }
 }
