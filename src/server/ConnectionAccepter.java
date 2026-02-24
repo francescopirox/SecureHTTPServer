@@ -26,7 +26,8 @@ public class ConnectionAccepter {
 
     public void accept() throws IOException {
         while(true) {
-            new HttpHandler(socket.accept());
+            System.out.println("START TO ACCEPT");
+            new HttpHandler(socket.accept()).startServing();
         }
     }
 
