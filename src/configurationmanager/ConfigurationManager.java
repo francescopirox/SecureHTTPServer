@@ -46,4 +46,13 @@ public class ConfigurationManager implements Configuration{
         return new Name(name);
 
     }
+
+    @Override
+    public String getLocation(){
+        String ret=configurationParser.castValue("location");
+        if(ret==null)
+            return DEFAULTS.defaultLocation;
+        return ret;
+
+    }
 }
